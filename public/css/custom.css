@@ -1,0 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-bg: #f8f9fa;      /* Light Gray Background */
+    --secondary-bg: #ffffff;    /* White */
+    --accent-green: #10b981;    /* Emerald/Learning Green */
+    --accent-hover: #059669;    /* Darker Green */
+    --text-main: #1f2937;       /* Dark Gray */
+    --text-muted: #6b7280;      /* Muted Gray */
+    --border-color: #e5e7eb;    /* Light Border */
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--primary-bg);
+    color: var(--text-main);
+    overflow-x: hidden;
+}
+
+/* Base Cards */
+.custom-card {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.custom-card-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+/* Custom Buttons */
+.btn-primary-custom {
+    background-color: var(--accent-green);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.btn-primary-custom:hover {
+    background-color: var(--accent-hover);
+    color: white;
+}
+
+/* Progress Bar Override */
+.progress {
+    background-color: #f3f4f6;
+    border-radius: 10px;
+    height: 8px;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+}
+.progress-bar {
+    background-color: var(--accent-green);
+}
+
+/* Sidebar */
+.sidebar {
+    min-height: 100vh;
+    background: var(--secondary-bg);
+    border-right: 1px solid var(--border-color);
+    padding-top: 20px;
+}
+.sidebar .nav-link {
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+    border-radius: 6px;
+    margin: 4px 15px;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+}
+.sidebar .nav-link:hover, .sidebar .nav-link.active {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--accent-green);
+}
+
+/* Custom Badges */
+.badge-difficulty-beginner { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+.badge-difficulty-intermediate { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+.badge-difficulty-advanced { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+/* Remove default bootstrap anchor styles */
+a { text-decoration: none; color: inherit; }
