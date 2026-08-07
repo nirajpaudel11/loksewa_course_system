@@ -11,8 +11,7 @@ class EnrollmentController extends Controller
 {
     public function enroll(Course $course)
     {
-        // Use currently authenticated user or fallback for demo
-        $userId = Auth::id() ?? 2;
+        $userId = Auth::id();
 
         // Atomic check and create
         Enrollment::firstOrCreate(

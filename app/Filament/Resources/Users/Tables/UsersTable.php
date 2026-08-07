@@ -19,6 +19,16 @@ class UsersTable
                 TextColumn::make('email')
                     ->label('Email address')
                     ->searchable(),
+                TextColumn::make('learning_pace_multiplier')
+                    ->label('Learning Pace')
+                    ->badge()
+                    ->color(fn ($state): string => match (true) {
+                        $state > 1.1 => 'danger',
+                        $state >= 1.0 => 'success',
+                        $state >= 0.8 => 'warning',
+                        default => 'gray',
+                    })
+                    ->sortable(),
                 TextColumn::make('email_verified_at')
                     ->dateTime()
                     ->sortable(),

@@ -50,30 +50,18 @@ class AdminCurriculumController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'type' => 'required|in:text,video,pdf,quiz',
-            'content' => 'nullable|string',
-            'attachment_path' => 'nullable|string',
+            'content' => 'required_if:type,text,quiz|string',
+            'attachment_path' => 'required_if:type,video,pdf|string',
             'order' => 'nullable|integer',
         ]);
-
-        $content = $request->content;
-        if ($request->type === 'quiz' && empty($content)) {
-            $content = json_encode([
-                [
-                    'question' => 'Sample GK Question: What is the capital of Nepal?',
-                    'options' => ['Kathmandu', 'Pokhara', 'Lalitpur', 'Biratnagar'],
-                    'answer' => 0,
-                    'explanation' => 'Kathmandu is the capital and largest city of Nepal.'
-                ]
-            ]);
-        }
 
         Lesson::create([
             'chapter_id' => $chapter->id,
             'title' => $request->title,
             'slug' => Str::slug($request->title) . '-' . rand(100, 999),
             'type' => $request->type,
-            'content' => $content ?? 'Default lesson content goes here.',
-            'attachment_path' => $request->attachment_path ?? ($request->type === 'pdf' ? 'storage/notes/Sample questions.pdf' : null),
+            'content' => $request->content,
+            'attachment_path' => $request->attachment_path,
             'order' => $request->order ?? (Lesson::where('chapter_id', $chapter->id)->count() + 1),
             'is_published' => true,
         ]);

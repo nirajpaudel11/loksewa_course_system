@@ -15,7 +15,7 @@ class LessonController extends Controller
         $course = Course::where('slug', $course_slug)->firstOrFail();
         $lesson = Lesson::where('slug', $lesson_slug)->firstOrFail();
 
-        $userId = Auth::id() ?? 2;
+        $userId = Auth::id();
 
         // Ensure user is enrolled
         $isEnrolled = Enrollment::where('user_id', $userId)
@@ -45,7 +45,7 @@ class LessonController extends Controller
     {
         $course = Course::where('slug', $course_slug)->firstOrFail();
         $lesson = Lesson::where('slug', $lesson_slug)->firstOrFail();
-        $userId = Auth::id() ?? 2;
+        $userId = Auth::id();
 
         // Ensure user is enrolled
         $enrollment = Enrollment::where('user_id', $userId)
@@ -88,27 +88,42 @@ class LessonController extends Controller
         ]);
 
 
-        // Find the next lesson in the course structure
-        // Order by module order, chapter order, then lesson order
-        $allLessons = \App\Models\Lesson::whereHas('chapter.module', function($query) use ($course) {
-            $query->where('course_id', $course->id);
-        })
-        ->with(['chapter.module'])
-        ->get()
-        ->sortBy(function($l) {
-            return $l->chapter->module->order * 10000 + $l->chapter->order * 100 + $l->order;
-        });
+        // Find the next lesson using optimized SQL queries
+        $nextLesson = \App\Models\Lesson::where('chapter_id', $lesson->chapter_id)
+            ->where('order', '>', $lesson->order)
+            ->orderBy('order', 'asc')
+            ->first();
 
-        $nextLesson = null;
-        $foundCurrent = false;
-
-        foreach ($allLessons as $l) {
-            if ($foundCurrent) {
-                $nextLesson = $l;
-                break;
+        if (!$nextLesson) {
+            $chapter = $lesson->chapter;
+            $nextChapter = \App\Models\Chapter::where('module_id', $chapter->module_id)
+                ->where('order', '>', $chapter->order)
+                ->orderBy('order', 'asc')
+                ->first();
+                
+            if ($nextChapter) {
+                $nextLesson = \App\Models\Lesson::where('chapter_id', $nextChapter->id)
+                    ->orderBy('order', 'asc')
+                    ->first();
             }
-            if ($l->id === $lesson->id) {
-                $foundCurrent = true;
+            
+            if (!$nextLesson) {
+                $module = $chapter->module;
+                $nextModule = \App\Models\Module::where('course_id', $course->id)
+                    ->where('order', '>', $module->order)
+                    ->orderBy('order', 'asc')
+                    ->first();
+                    
+                if ($nextModule) {
+                    $firstChapter = \App\Models\Chapter::where('module_id', $nextModule->id)
+                        ->orderBy('order', 'asc')
+                        ->first();
+                    if ($firstChapter) {
+                        $nextLesson = \App\Models\Lesson::where('chapter_id', $firstChapter->id)
+                            ->orderBy('order', 'asc')
+                            ->first();
+                    }
+                }
             }
         }
 

@@ -24,16 +24,8 @@
                     <p class="absolute bottom-10 text-gray-500 text-sm font-medium uppercase tracking-widest">Video Player Interface</p>
                 </div>
             @elseif($lesson->type == 'pdf')
-                <div class="aspect-video flex flex-col items-center justify-center bg-gray-950 p-8 text-center text-white">
-                    <div class="w-16 h-16 bg-red-500/10 border border-red-500/20 text-red-500 rounded-3xl flex items-center justify-center mb-6">
-                        <i data-lucide="file-text" class="w-8 h-8"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-100 mb-2">Chapter PDF Notes</h3>
-                    <p class="text-sm text-gray-400 mb-6 max-w-xs">Download the official Loksewa syllabus notes for <strong>{{ $lesson->title }}</strong>.</p>
-                    <a href="{{ asset($lesson->attachment_path) }}" download class="inline-flex items-center gap-3 bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-4 rounded-2xl transition-all">
-                        <i data-lucide="download" class="w-5 h-5"></i>
-                        Download PDF Notes
-                    </a>
+                <div class="aspect-[16/10] w-full bg-gray-950">
+                    <iframe src="{{ asset($lesson->attachment_path) }}" class="w-full h-full border-0 rounded-3xl" title="PDF Notes"></iframe>
                 </div>
             @elseif($lesson->type == 'quiz')
                 <!-- Interactive GK/IQ Quiz Player – scrollable, no fixed aspect ratio -->
@@ -205,17 +197,17 @@
 
                 @if($lesson->attachment_path)
                     <!-- PDF Attachment Section -->
-                    <div class="p-6 bg-red-50 border border-red-100 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="p-6 bg-emerald-50 border border-emerald-100 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-white text-red-500 flex items-center justify-center shadow-sm">
+                            <div class="w-10 h-10 rounded-xl bg-white text-emerald-500 flex items-center justify-center shadow-sm">
                                 <i data-lucide="file-text" class="w-5 h-5"></i>
                             </div>
                             <div>
-                                <p class="text-xs font-bold text-red-800">Chapter PDF Notes Available</p>
-                                <p class="text-[10px] text-red-600">Download for offline reading and revision</p>
+                                <p class="text-xs font-bold text-emerald-800">Chapter PDF Notes Available</p>
+                                <p class="text-[10px] text-emerald-600">Download for offline reading and revision</p>
                             </div>
                         </div>
-                        <a href="{{ asset($lesson->attachment_path) }}" download class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5">
+                        <a href="{{ asset($lesson->attachment_path) }}" download class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5">
                             <i data-lucide="download" class="w-3.5 h-3.5"></i>
                             Download PDF
                         </a>
@@ -277,6 +269,8 @@
         </div>
     </div>
 </div>
+
+
 
 <!-- JavaScript Engine for Tabs, Notepad and Interactive Quiz -->
 <script>
@@ -449,5 +443,6 @@
         // Initialize first question
         loadQuestion();
     }
+
 </script>
 @endsection

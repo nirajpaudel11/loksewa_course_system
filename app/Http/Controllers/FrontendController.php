@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Course;
 use App\Models\User;
 use App\Models\Enrollment;
-use App\Services\Algorithms\CollaborativeFilteringService;
+use App\Services\RecommendationService;
 use App\Services\Algorithms\ContentSimilarityService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +16,7 @@ class FrontendController extends Controller
     protected $similarityService;
 
     public function __construct(
-        CollaborativeFilteringService $collabService,
+        RecommendationService $collabService,
         ContentSimilarityService $similarityService
     ) {
         $this->collabService = $collabService;
@@ -28,7 +28,7 @@ class FrontendController extends Controller
         $userId = Auth::id();
         
         $courses = Course::where('is_published', true)->get();
-        $recommendations = $userId ? $this->collabService->getRecommendations($userId) : collect();
+        $recommendations = $userId ? $this->collabService->getRecommendedCourses(Auth::user(), 5) : collect();
         
         // Dynamic Stats
         $stats = [
@@ -81,7 +81,7 @@ class FrontendController extends Controller
         }
         
         // Algorithm 1: Collaborative Filtering – next courses for this user
-        $nextRecommendations = $userId ? $this->collabService->getRecommendations($userId) : collect();
+        $nextRecommendations = $userId ? $this->collabService->getRecommendedCourses(Auth::user(), 5) : collect();
 
         // Algorithm 2: Content Similarity – related courses
         $relatedCourses = $this->similarityService->getSimilarCourses($course);

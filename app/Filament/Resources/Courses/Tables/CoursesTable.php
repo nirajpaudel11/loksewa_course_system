@@ -25,6 +25,12 @@ class CoursesTable
                     ->circular(),
                 IconColumn::make('is_published')
                     ->boolean(),
+                TextColumn::make('trending_score')
+                    ->label('Trending Score')
+                    ->numeric(2)
+                    ->badge()
+                    ->color('warning')
+                    ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
