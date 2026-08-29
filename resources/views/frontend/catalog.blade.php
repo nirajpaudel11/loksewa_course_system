@@ -29,8 +29,14 @@
                 <div
                     class="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:border-emerald-200 transition-all hover:shadow-2xl hover:shadow-emerald-50 shadow-sm flex flex-col">
                     <div class="h-52 overflow-hidden relative">
-                        <img src="{{ Str::startsWith($course->thumbnail, 'http') ? $course->thumbnail : Storage::url($course->thumbnail) }}" alt="{{ $course->title }}"
-                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                        @if($course->thumbnail)
+                            <img src="{{ Str::startsWith($course->thumbnail, 'http') ? $course->thumbnail : Storage::url($course->thumbnail) }}" alt="{{ $course->title }}"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                        @else
+                            <div class="w-full h-full bg-emerald-50 text-emerald-700 flex items-center justify-center font-black text-4xl">
+                                {{ strtoupper(substr($course->title, 0, 1)) }}
+                            </div>
+                        @endif
                         <div
                             class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
                             <a href="{{ url('/courses/' . $course->slug) }}"
@@ -63,6 +69,10 @@
                     <a href="{{ url('/catalog') }}" class="text-emerald-600 font-bold hover:underline">Clear Search</a>
                 </div>
             @endforelse
+        </div>
+
+        <div class="mt-8">
+            {{ $courses->links() }}
         </div>
     </div>
 @endsection

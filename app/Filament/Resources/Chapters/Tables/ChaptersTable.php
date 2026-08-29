@@ -15,8 +15,8 @@ class ChaptersTable
     {
         return $table
             ->columns([
-                TextColumn::make('module_id')
-                    ->numeric()
+                TextColumn::make('module.title')
+                    // ->numeric()
                     ->sortable(),
                 TextColumn::make('title')
                     ->searchable(),

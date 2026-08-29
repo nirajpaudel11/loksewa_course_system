@@ -402,8 +402,8 @@
                 }
             });
 
-            // Re-render Lucide icons injected dynamically
-            lucide.createIcons();
+            // Re-render icons injected dynamically.
+            window.renderIcons();
 
             if (index === correctIndex) {
                 score++;

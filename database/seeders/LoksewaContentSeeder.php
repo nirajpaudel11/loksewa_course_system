@@ -338,5 +338,7 @@ class LoksewaContentSeeder extends Seeder
         if ($nrbAd && $nrbOfficer) {
             $nrbAd->prerequisites()->attach($nrbOfficer->id);
         }
+
+        $this->call(LessonMcqSeeder::class);
     }
 }

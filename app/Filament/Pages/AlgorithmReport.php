@@ -19,6 +19,8 @@ use Exception;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 use UnitEnum;
+use Illuminate\Support\Facades\Artisan;
+use Filament\Actions\Action;
 
 class AlgorithmReport extends Page
 {
@@ -35,14 +37,34 @@ class AlgorithmReport extends Page
     protected static ?int $navigationSort = 100;
 
     protected string $view = 'filament.pages.algorithm-report';
+protected function getHeaderActions(): array
+{
+    return [
+        Action::make('updateTrending')
+            ->label('Update Trending Scores')
+            ->icon(Heroicon::OutlinedArrowPath)
+            ->requiresConfirmation()
+            ->modalHeading('Update Trending Scores')
+            ->modalDescription('This will run the trending course calculation.')
+            ->action(function () {
+                Artisan::call('courses:update-trending');
 
+                $this->dispatch('refresh');
+
+                \Filament\Notifications\Notification::make()
+                    ->title('Trending scores updated successfully')
+                    ->success()
+                    ->send();
+            }),
+    ];
+}
     public function getViewData(): array
     {
         return [
             'dagReport' => $this->getDagReport(),
             'trendingReport' => $this->getTrendingReport(),
             'collaborativeReport' => $this->getCollaborativeFilteringReport(),
-            'contentSimilarityReport' => $this->getContentSimilarityReport(),
+            // 'contentSimilarityReport' => $this->getContentSimilarityReport(),
             'spacedRepetitionReport' => $this->getSpacedRepetitionReport(),
             'learningPacingReport' => $this->getLearningPacingReport(),
             'overviewStats' => $this->getOverviewStats(),
@@ -177,26 +199,26 @@ class AlgorithmReport extends Page
     /**
      * Content Similarity report.
      */
-    private function getContentSimilarityReport(): array
-    {
-        $service = app(ContentSimilarityService::class);
-        $courses = Course::limit(5)->get();
-        $similarities = [];
+    // private function getContentSimilarityReport(): array
+    // {
+    //     $service = app(ContentSimilarityService::class);
+    //     $courses = Course::limit(5)->get();
+    //     $similarities = [];
 
-        foreach ($courses as $course) {
-            $similar = $service->getSimilarCourses($course, 3);
-            $similarities[] = [
-                'course' => $course,
-                'similar_courses' => $similar,
-            ];
-        }
+    //     foreach ($courses as $course) {
+    //         $similar = $service->getSimilarCourses($course, 3);
+    //         $similarities[] = [
+    //             'course' => $course,
+    //             'similar_courses' => $similar,
+    //         ];
+    //     }
 
-        return [
-            'similarities' => $similarities,
-            'method' => 'TF-IDF with Cosine Similarity',
-            'tokenization' => 'Lowercase, punctuation removed, min 4 chars',
-        ];
-    }
+    //     return [
+    //         'similarities' => $similarities,
+    //         'method' => 'TF-IDF with Cosine Similarity',
+    //         'tokenization' => 'Lowercase, punctuation removed, min 4 chars',
+    //     ];
+    // }
 
     /**
      * Spaced Repetition report.

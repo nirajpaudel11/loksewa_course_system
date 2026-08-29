@@ -1,24 +1,25 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\AdminCurriculumController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\LessonController;
 use App\Http\Controllers\EnrollmentController;
+use App\Http\Controllers\FrontendController;
+use App\Http\Controllers\LessonController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get('/', [FrontendController::class, 'dashboard']);
+Route::get('/', [FrontendController::class, 'landing'])->name('landing');
 Route::get('/catalog', [FrontendController::class, 'catalog']);
-Route::get('/analytics', [FrontendController::class, 'analytics']);
 Route::get('/courses/{slug}', [FrontendController::class, 'courseDetails'])->name('courses.details');
 
 Route::get('/visualizer', [FrontendController::class, 'visualizer'])->name('visualizer');
 
-Route::middleware(['auth'])->group(function() {
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [FrontendController::class, 'dashboard'])->name('dashboard');
+    Route::get('/analytics', [FrontendController::class, 'analytics']);
     Route::get('/courses/{course_slug}/lessons/{lesson_slug}', [LessonController::class, 'show'])->name('lessons.show');
     Route::post('/courses/{course_slug}/lessons/{lesson_slug}/complete', [LessonController::class, 'complete'])->name('lessons.complete');
     Route::post('/courses/{course}/enroll', [EnrollmentController::class, 'enroll'])->name('courses.enroll');

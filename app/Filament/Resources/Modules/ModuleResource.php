@@ -18,7 +18,7 @@ use UnitEnum;
 class ModuleResource extends Resource
 {
     protected static ?string $model = Module::class;
-
+protected static bool $shouldRegisterNavigation = false;
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFolderOpen;
 
     protected static ?string $navigationLabel = 'Modules';

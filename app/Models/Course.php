@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Course extends Model
 {
@@ -11,33 +13,18 @@ class Course extends Model
 
     protected $guarded = [];
 
-    public function modules()
+    public function modules(): HasMany
     {
         return $this->hasMany(Module::class)->orderBy('order');
     }
 
-    public function prerequisites()
+    public function prerequisites(): BelongsToMany
     {
         return $this->belongsToMany(Course::class, 'course_prerequisites', 'course_id', 'prerequisite_course_id');
     }
 
-    public function enrollments()
+    public function enrollments(): HasMany
     {
         return $this->hasMany(Enrollment::class);
-    }
-
-    /**
-     * Get all lessons for the course through modules and chapters.
-     */
-    public function lessons()
-    {
-        return $this->hasManyThrough(
-            Lesson::class,
-            Chapter::class,
-            'module_id', // This is wrong, it needs to go through Module
-            'chapter_id',
-            'id',
-            'id'
-        );
     }
 }

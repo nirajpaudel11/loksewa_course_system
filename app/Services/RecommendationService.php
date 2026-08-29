@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
-use App\Models\User;
 use App\Models\Course;
 use App\Models\Enrollment;
+use App\Models\User;
 use Illuminate\Support\Collection;
 
 class RecommendationService
@@ -31,17 +31,17 @@ class RecommendationService
 
         foreach ($similarUsers as $similarUserId) {
             $similarUserEnrollments = Enrollment::where('user_id', $similarUserId)->pluck('course_id')->toArray();
-            
+
             // Calculate Jaccard Similarity: |Intersection| / |Union|
             $intersection = array_intersect($userEnrollments, $similarUserEnrollments);
             $union = array_unique(array_merge($userEnrollments, $similarUserEnrollments));
-            
+
             $similarity = count($intersection) / count($union);
 
             // Add weight to courses the similar user took that our user hasn't
             $newCourses = array_diff($similarUserEnrollments, $userEnrollments);
             foreach ($newCourses as $courseId) {
-                if (!isset($courseScores[$courseId])) {
+                if (! isset($courseScores[$courseId])) {
                     $courseScores[$courseId] = 0;
                 }
                 $courseScores[$courseId] += $similarity;
@@ -50,17 +50,19 @@ class RecommendationService
 
         // Sort by highest score
         arsort($courseScores);
-        
+
         $recommendedCourseIds = array_slice(array_keys($courseScores), 0, $limit);
-        
+
         // Return course objects maintaining the sorted order
         if (empty($recommendedCourseIds)) {
             return collect();
         }
-        
-        $placeholders = implode(',', array_fill(0, count($recommendedCourseIds), '?'));
-        return Course::whereIn('id', $recommendedCourseIds)
-            ->orderByRaw("FIELD(id, $placeholders)", $recommendedCourseIds)
-            ->get();
+
+        $courses = Course::whereIn('id', $recommendedCourseIds)->get()->keyBy('id');
+
+        return collect($recommendedCourseIds)
+            ->map(fn ($courseId) => $courses->get($courseId))
+            ->filter()
+            ->values();
     }
 }

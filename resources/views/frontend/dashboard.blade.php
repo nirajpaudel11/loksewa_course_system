@@ -50,7 +50,13 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @foreach($courses->take(6) as $course)
             <div class="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-5 hover:border-gray-300 transition-all shadow-sm">
-                <img src="{{ Str::startsWith($course->thumbnail, 'http') ? $course->thumbnail : Storage::url($course->thumbnail) }}" class="w-20 h-20 rounded-lg object-cover" alt="">
+                @if($course->thumbnail)
+                    <img src="{{ Str::startsWith($course->thumbnail, 'http') ? $course->thumbnail : Storage::url($course->thumbnail) }}" class="w-20 h-20 rounded-lg object-cover" alt="{{ $course->title }}">
+                @else
+                    <div class="w-20 h-20 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center font-black text-3xl">
+                        {{ strtoupper(substr($course->title, 0, 1)) }}
+                    </div>
+                @endif
                 <div class="flex-1">
                     <h5 class="font-bold text-gray-900 mb-3 leading-tight">{{ $course->title }}</h5>
                     <a href="{{ url('/courses/' . $course->slug) }}" class="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1">

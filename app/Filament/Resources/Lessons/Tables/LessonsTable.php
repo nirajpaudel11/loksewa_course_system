@@ -15,8 +15,8 @@ class LessonsTable
     {
         return $table
             ->columns([
-                TextColumn::make('chapter_id')
-                    ->numeric()
+                TextColumn::make('chapter.title')
+                    // ->numeric()
                     ->sortable(),
                 TextColumn::make('title')
                     ->searchable(),

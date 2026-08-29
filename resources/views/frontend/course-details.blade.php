@@ -195,15 +195,6 @@
                 @endif
                 @endauth
 
-@auth
-@if($isEnrolled && $progressPercentage == 100 && $course->title === 'Constitution')
-<div class="mt-8 p-6 bg-emerald-50 border border-emerald-200 rounded-xl">
-    <h4 class="text-xl font-bold text-gray-900 mb-4">Recommended Next Course</h4>
-    <p class="text-lg text-gray-700">Based on completing <strong>Constitution</strong>, we suggest moving on to <strong>Governance</strong>.</p>
-    <a href="{{ url('/courses/governance') }}" class="text-emerald-600 hover:underline font-bold">Go to Governance</a>
-</div>
-@endif
-@endauth
             </div>
 
             <!-- Related Courses (Algorithm 2) -->
@@ -213,7 +204,13 @@
                     @foreach($relatedCourses as $rel)
                         <a href="{{ url('/courses/' . $rel->slug) }}" class="group block">
                             <div class="aspect-video rounded-xl overflow-hidden mb-3">
-                                <img src="{{ Str::startsWith($rel->thumbnail, 'http') ? $rel->thumbnail : Storage::url($rel->thumbnail) }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="">
+                                @if($rel->thumbnail)
+                                    <img src="{{ Str::startsWith($rel->thumbnail, 'http') ? $rel->thumbnail : Storage::url($rel->thumbnail) }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="{{ $rel->title }}">
+                                @else
+                                    <div class="w-full h-full bg-emerald-50 text-emerald-700 flex items-center justify-center font-black text-3xl">
+                                        {{ strtoupper(substr($rel->title, 0, 1)) }}
+                                    </div>
+                                @endif
                             </div>
                             <h6 class="font-bold text-gray-900 group-hover:text-emerald-600 transition-colors leading-tight">{{ $rel->title }}</h6>
                         </a>

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Chapters;
 use App\Filament\Resources\Chapters\Pages\CreateChapter;
 use App\Filament\Resources\Chapters\Pages\EditChapter;
 use App\Filament\Resources\Chapters\Pages\ListChapters;
+use App\Filament\Resources\Chapters\RelationManagers\LessonsRelationManager;
 use App\Filament\Resources\Chapters\Schemas\ChapterForm;
 use App\Filament\Resources\Chapters\Tables\ChaptersTable;
 use App\Models\Chapter;
@@ -42,7 +43,7 @@ class ChapterResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            LessonsRelationManager::class,
         ];
     }
 

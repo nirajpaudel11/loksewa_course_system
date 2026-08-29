@@ -5,16 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Loksewa Course LMS')</title>
     
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 </head>
 <body class="bg-gray-50 text-gray-900">
 
@@ -26,7 +17,7 @@
         </div>
         
         <nav class="flex-1 px-4 space-y-1">
-            <a href="{{ url('/') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-lg {{ request()->is('/') ? 'bg-emerald-50 text-emerald-700' : 'text-gray-600 hover:bg-gray-50' }}">
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-lg {{ request()->is('dashboard') ? 'bg-emerald-50 text-emerald-700' : 'text-gray-600 hover:bg-gray-50' }}">
                 <i data-lucide="layout-grid" class="w-4 h-4"></i>
                 Dashboard
             </a>
@@ -78,7 +69,9 @@
                             <p class="text-sm font-bold text-gray-900">{{ Auth::user()->name }}</p>
                             <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">{{ Auth::user()->roles->first()->name ?? 'User' }}</p>
                         </div>
-                        <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=10b981&color=fff" class="w-8 h-8 rounded-full ring-2 ring-emerald-50 shadow-sm" alt="Profile">
+                        <div class="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold shadow-sm" aria-label="Profile">
+                            {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                        </div>
                     </div>
                 @else
                     <a href="{{ route('login') }}" class="text-sm font-bold text-emerald-600 hover:text-emerald-700">Sign In to Continue &rarr;</a>
@@ -93,9 +86,6 @@
     </main>
 </div>
 
-<!-- Lucide Icon Initialization -->
-<script>
-    lucide.createIcons();
-</script>
+<script src="{{ asset('js/icons.js') }}"></script>
 </body>
 </html>

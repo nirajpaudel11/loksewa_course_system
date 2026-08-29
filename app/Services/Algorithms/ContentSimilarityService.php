@@ -15,17 +15,22 @@ class ContentSimilarityService
         $allCourses = Course::where('id', '!=', $course->id)->get();
         $scores = [];
 
-        $targetTokens = $this->tokenize($course->title . ' ' . $course->description);
+        $targetTokens = $this->tokenize($course->title.' '.$course->description);
 
         foreach ($allCourses as $otherCourse) {
-            $otherTokens = $this->tokenize($otherCourse->title . ' ' . $otherCourse->description);
+            $otherTokens = $this->tokenize($otherCourse->title.' '.$otherCourse->description);
             $scores[$otherCourse->id] = $this->cosineSimilarity($targetTokens, $otherTokens);
         }
 
         arsort($scores);
         $topIds = array_keys(array_slice($scores, 0, $limit, true));
 
-        return Course::whereIn('id', $topIds)->get();
+        $courses = Course::whereIn('id', $topIds)->get()->keyBy('id');
+
+        return collect($topIds)
+            ->map(fn ($courseId) => $courses->get($courseId))
+            ->filter()
+            ->values();
     }
 
     private function tokenize(string $text): array
@@ -33,7 +38,8 @@ class ContentSimilarityService
         // Simple tokenizer: lowercase, remove punctuation, split by space
         $clean = strtolower(preg_replace('/[^\w\s]/', '', $text));
         $tokens = explode(' ', $clean);
-        return array_filter($tokens, fn($t) => strlen($t) > 3); // ignore small words
+
+        return array_filter($tokens, fn ($t) => strlen($t) > 3); // ignore small words
     }
 
     private function cosineSimilarity(array $tokensA, array $tokensB): float
@@ -42,7 +48,7 @@ class ContentSimilarityService
         $vecB = array_count_values($tokensB);
 
         $uniqueTokens = array_unique(array_merge(array_keys($vecA), array_keys($vecB)));
-        
+
         $dotProduct = 0;
         $magA = 0;
         $magB = 0;
@@ -57,6 +63,7 @@ class ContentSimilarityService
         }
 
         $divisor = sqrt($magA) * sqrt($magB);
+
         return $divisor == 0 ? 0 : $dotProduct / $divisor;
     }
 }
