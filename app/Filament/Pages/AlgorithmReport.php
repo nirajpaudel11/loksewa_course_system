@@ -11,16 +11,15 @@ use App\Services\Algorithms\CollaborativeFilteringService;
 use App\Services\Algorithms\ContentSimilarityService;
 use App\Services\CourseDependencyService;
 use App\Services\LearningPacingService;
-use App\Services\SpacedRepetitionService;
-use App\Services\TrendingService;
 use BackedEnum;
 use Carbon\Carbon;
 use Exception;
+use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
-use UnitEnum;
 use Illuminate\Support\Facades\Artisan;
-use Filament\Actions\Action;
+use UnitEnum;
 
 class AlgorithmReport extends Page
 {
@@ -37,27 +36,29 @@ class AlgorithmReport extends Page
     protected static ?int $navigationSort = 100;
 
     protected string $view = 'filament.pages.algorithm-report';
-protected function getHeaderActions(): array
-{
-    return [
-        Action::make('updateTrending')
-            ->label('Update Trending Scores')
-            ->icon(Heroicon::OutlinedArrowPath)
-            ->requiresConfirmation()
-            ->modalHeading('Update Trending Scores')
-            ->modalDescription('This will run the trending course calculation.')
-            ->action(function () {
-                Artisan::call('courses:update-trending');
 
-                $this->dispatch('refresh');
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('updateTrending')
+                ->label('Update Trending Scores')
+                ->icon(Heroicon::OutlinedArrowPath)
+                ->requiresConfirmation()
+                ->modalHeading('Update Trending Scores')
+                ->modalDescription('This will run the trending course calculation.')
+                ->action(function () {
+                    Artisan::call('courses:update-trending');
 
-                \Filament\Notifications\Notification::make()
-                    ->title('Trending scores updated successfully')
-                    ->success()
-                    ->send();
-            }),
-    ];
-}
+                    $this->dispatch('refresh');
+
+                    Notification::make()
+                        ->title('Trending scores updated successfully')
+                        ->success()
+                        ->send();
+                }),
+        ];
+    }
+
     public function getViewData(): array
     {
         return [
@@ -123,7 +124,7 @@ protected function getHeaderActions(): array
 
         // Map IDs to titles for the learning order
         $courseTitles = Course::pluck('title', 'id')->toArray();
-        $learningOrderNames = array_map(fn($id) => [
+        $learningOrderNames = array_map(fn ($id) => [
             'id' => $id,
             'title' => $courseTitles[$id] ?? "Course #{$id}",
         ], $learningOrder);
@@ -283,7 +284,9 @@ protected function getHeaderActions(): array
                 ->get();
 
             foreach ($userEnrollments->take(2) as $enrollment) {
-                if (!$enrollment->course) continue;
+                if (! $enrollment->course) {
+                    continue;
+                }
 
                 try {
                     $predicted = $service->predictCompletionDate($user, $enrollment->course);

@@ -13,7 +13,7 @@ class EnrollmentTrendChart extends ChartWidget
 
     protected ?string $maxHeight = '280px';
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     protected string $color = 'success';
 

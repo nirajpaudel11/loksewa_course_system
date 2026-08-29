@@ -11,7 +11,7 @@ class CourseDifficultyChart extends ChartWidget
 
     protected ?string $maxHeight = '280px';
 
-    protected int | string | array $columnSpan = 1;
+    protected int|string|array $columnSpan = 1;
 
     protected string $color = 'warning';
 

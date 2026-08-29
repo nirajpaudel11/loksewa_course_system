@@ -2,9 +2,9 @@
 
 namespace App\Services\Algorithms;
 
-use App\Models\User;
 use App\Models\Course;
 use App\Models\Enrollment;
+use App\Models\User;
 use Illuminate\Support\Collection;
 
 class CollaborativeFilteringService
@@ -16,7 +16,7 @@ class CollaborativeFilteringService
     public function getRecommendations(int $userId, int $limit = 4): Collection
     {
         $currentUserEnrollments = Enrollment::where('user_id', $userId)->pluck('course_id')->toArray();
-        
+
         if (empty($currentUserEnrollments)) {
             // Cold start: return most popular courses if user has no enrollments
             return Course::withCount('enrollments')
@@ -30,14 +30,16 @@ class CollaborativeFilteringService
 
         foreach ($otherUsers as $otherUser) {
             $otherUserEnrollments = Enrollment::where('user_id', $otherUser->id)->pluck('course_id')->toArray();
-            
-            if (empty($otherUserEnrollments)) continue;
+
+            if (empty($otherUserEnrollments)) {
+                continue;
+            }
 
             $intersection = array_intersect($currentUserEnrollments, $otherUserEnrollments);
             $union = array_unique(array_merge($currentUserEnrollments, $otherUserEnrollments));
-            
+
             $similarity = count($intersection) / count($union);
-            
+
             if ($similarity > 0) {
                 $similarities[$otherUser->id] = $similarity;
             }

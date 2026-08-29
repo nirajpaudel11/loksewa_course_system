@@ -11,7 +11,7 @@ class CoursePopularityChart extends ChartWidget
 
     protected ?string $maxHeight = '280px';
 
-    protected int | string | array $columnSpan = 1;
+    protected int|string|array $columnSpan = 1;
 
     protected string $color = 'info';
 
@@ -34,7 +34,7 @@ class CoursePopularityChart extends ChartWidget
         $labels = $courses->map(function ($course) {
             // Truncate long titles for chart readability
             return strlen($course->title) > 22
-                ? substr($course->title, 0, 20) . '…'
+                ? substr($course->title, 0, 20).'…'
                 : $course->title;
         })->toArray();
 

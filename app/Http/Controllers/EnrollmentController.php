@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Course;
 use App\Models\Enrollment;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class EnrollmentController extends Controller
@@ -19,7 +18,7 @@ class EnrollmentController extends Controller
             ['status' => 'active', 'progress_percentage' => 0]
         );
 
-        return redirect()->back()->with('success', 'You have successfully joined the ' . $course->title . ' preparation path!');
+        return redirect()->back()->with('success', 'You have successfully joined the '.$course->title.' preparation path!');
     }
 
     public function unenroll(Course $course)
@@ -32,6 +31,6 @@ class EnrollmentController extends Controller
                 ->delete();
         }
 
-        return redirect()->back()->with('success', 'You have been unenrolled from ' . $course->title);
+        return redirect()->back()->with('success', 'You have been unenrolled from '.$course->title);
     }
 }

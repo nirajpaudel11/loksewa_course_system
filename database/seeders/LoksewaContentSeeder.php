@@ -2,12 +2,14 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\Course;
-use App\Models\Module;
 use App\Models\Chapter;
-use App\Models\Lesson;
+use App\Models\Course;
 use App\Models\Enrollment;
+use App\Models\Lesson;
+use App\Models\LessonProgress;
+use App\Models\Module;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class LoksewaContentSeeder extends Seeder
@@ -22,7 +24,7 @@ class LoksewaContentSeeder extends Seeder
             foreach ($chapters as $chapter) {
                 // Also clear progress for lessons in this chapter
                 $lessonIds = Lesson::where('chapter_id', $chapter->id)->pluck('id');
-                \App\Models\LessonProgress::whereIn('lesson_id', $lessonIds)->delete();
+                LessonProgress::whereIn('lesson_id', $lessonIds)->delete();
                 Lesson::where('chapter_id', $chapter->id)->delete();
             }
             $module->chapters()->delete();
@@ -34,7 +36,6 @@ class LoksewaContentSeeder extends Seeder
             'progress_percentage' => 0,
             'status' => 'active',
         ]);
-
 
         // 1. NAYAB SUBBA TAYARI
         $nayabSubba = Course::find(1);
@@ -86,20 +87,20 @@ class LoksewaContentSeeder extends Seeder
                     'question' => 'What percentage of Nepal\'s total land area is covered by the Hilly Region?',
                     'options' => ['15%', '68%', '17%', '50%'],
                     'answer' => 1,
-                    'explanation' => 'The Hilly Region covers approximately 68% of Nepal\'s total land area, consisting of several valleys, basins, and low mountain ranges.'
+                    'explanation' => 'The Hilly Region covers approximately 68% of Nepal\'s total land area, consisting of several valleys, basins, and low mountain ranges.',
                 ],
                 [
                     'question' => 'Which is the longest river system in Nepal?',
                     'options' => ['Koshi', 'Gandaki', 'Karnali', 'Bagmati'],
                     'answer' => 2,
-                    'explanation' => 'The Karnali River is the longest river system in Nepal, flowing from the Himalayas of Tibet down to India.'
+                    'explanation' => 'The Karnali River is the longest river system in Nepal, flowing from the Himalayas of Tibet down to India.',
                 ],
                 [
                     'question' => 'What is the exact height of Mount Everest as agreed by Nepal and China in 2020?',
                     'options' => ['8848 meters', '8848.48 meters', '8848.86 meters', '8850 meters'],
                     'answer' => 2,
-                    'explanation' => 'The officially recognized and measured height of Mount Everest is 8848.86 meters.'
-                ]
+                    'explanation' => 'The officially recognized and measured height of Mount Everest is 8848.86 meters.',
+                ],
             ];
 
             Lesson::create([
@@ -142,14 +143,14 @@ class LoksewaContentSeeder extends Seeder
                     'question' => 'Find the next term in the series: B, D, F, H, ?',
                     'options' => ['I', 'J', 'K', 'L'],
                     'answer' => 1,
-                    'explanation' => 'The series advances by skipping one letter each time (+2 interval). After H, skipping I gives J.'
+                    'explanation' => 'The series advances by skipping one letter each time (+2 interval). After H, skipping I gives J.',
                 ],
                 [
                     'question' => 'If LION is coded as MJPO, how is TIGER coded?',
-                    'options' => ['UJHFS','UKHFS','UJGFS','UIHFS'],
+                    'options' => ['UJHFS', 'UKHFS', 'UJGFS', 'UIHFS'],
                     'answer' => 0,
-                    'explanation' => 'Each letter in the word is shifted forward by one position (+1). T->U, I->J, G->H, E->F, R->S.'
-                ]
+                    'explanation' => 'Each letter in the word is shifted forward by one position (+1). T->U, I->J, G->H, E->F, R->S.',
+                ],
             ];
 
             Lesson::create([
@@ -200,8 +201,8 @@ class LoksewaContentSeeder extends Seeder
                     'question' => 'Under which section of the Nepal Rastra Bank Act, 2058 are the objectives of the Bank defined?',
                     'options' => ['Section 3', 'Section 4', 'Section 5', 'Section 10'],
                     'answer' => 1,
-                    'explanation' => 'Section 4 of the Nepal Rastra Bank Act, 2058 explicitly defines the objectives of the central bank.'
-                ]
+                    'explanation' => 'Section 4 of the Nepal Rastra Bank Act, 2058 explicitly defines the objectives of the central bank.',
+                ],
             ];
 
             Lesson::create([
@@ -315,8 +316,8 @@ class LoksewaContentSeeder extends Seeder
         }
 
         // Seed Course Prerequisites for Graph Traversal Visualizer
-        \Illuminate\Support\Facades\DB::table('course_prerequisites')->truncate();
-        
+        DB::table('course_prerequisites')->truncate();
+
         $kharidar = Course::find(5);
         $subba = Course::find(1);
         $officer = Course::find(4);

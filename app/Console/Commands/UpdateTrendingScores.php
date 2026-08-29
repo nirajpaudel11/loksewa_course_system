@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Services\TrendingService;
+use Illuminate\Console\Command;
 
 class UpdateTrendingScores extends Command
 {
@@ -27,9 +27,9 @@ class UpdateTrendingScores extends Command
     public function handle(TrendingService $trendingService)
     {
         $this->info('Calculating trending scores...');
-        
+
         $trendingService->calculateTrendingScores();
-        
+
         $this->info('Trending scores updated successfully!');
     }
 }

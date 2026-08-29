@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class LessonProgress extends Model
 {
     protected $table = 'lesson_progress';
+
     protected $fillable = [
         'user_id', 'lesson_id', 'completed_at',
         'easiness_factor', 'interval', 'repetitions', 'next_review_date',

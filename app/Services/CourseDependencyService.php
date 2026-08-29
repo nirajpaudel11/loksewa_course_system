@@ -15,8 +15,8 @@ class CourseDependencyService
      */
     public function buildGraph(): DependencyGraph
     {
-        $graph = new DependencyGraph();
-        
+        $graph = new DependencyGraph;
+
         // Add all courses as isolated nodes initially to ensure even courses without dependencies exist in graph
         $courseIds = Course::pluck('id')->toArray();
         foreach ($courseIds as $id) {
@@ -39,9 +39,10 @@ class CourseDependencyService
     public function validatePrerequisites(): bool
     {
         $graph = $this->buildGraph();
-        
+
         try {
             TopologicalSort::sort($graph);
+
             return true;
         } catch (Exception $e) {
             return false;
@@ -54,6 +55,7 @@ class CourseDependencyService
     public function getLearningOrder(): array
     {
         $graph = $this->buildGraph();
+
         return TopologicalSort::sort($graph);
     }
 
@@ -65,7 +67,7 @@ class CourseDependencyService
         $prerequisites = CoursePrerequisite::where('course_id', $targetCourseId)->pluck('prerequisite_course_id')->toArray();
 
         foreach ($prerequisites as $prereqId) {
-            if (!in_array($prereqId, $completedCourseIds)) {
+            if (! in_array($prereqId, $completedCourseIds)) {
                 return false; // Missing a prerequisite
             }
         }

@@ -1,7 +1,10 @@
 <?php
 
-namespace App\Filament\Resources\Chapters\RelationManagers;
+namespace App\Filament\Resources\Modules\RelationManagers;
 
+use App\Filament\Resources\Chapters\ChapterResource;
+use App\Models\Chapter;
+use Filament\Actions\Action;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -10,20 +13,19 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\DissociateAction;
 use Filament\Actions\DissociateBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class LessonsRelationManager extends RelationManager
+class ChaptersRelationManager extends RelationManager
 {
-    protected static string $relationship = 'lessons';
+    protected static string $relationship = 'chapters';
 
     public function form(Schema $schema): Schema
     {
@@ -33,24 +35,10 @@ class LessonsRelationManager extends RelationManager
                     ->required(),
                 TextInput::make('slug')
                     ->required(),
-                RichEditor::make('content')
+                Textarea::make('description')
                     ->default(null)
                     ->columnSpanFull(),
-                TextInput::make('video_url')
-                    ->url()
-                    ->default(null),
-                FileUpload::make('attachment_path'),
-                // ->disk('storage'),
-                // ->default(null),
-                Select::make('type')
-                    ->options(['text' => 'Text', 'video' => 'Video', 'pdf' => 'Pdf', 'quiz' => 'Quiz'])
-                    ->default('text')
-                    ->required(),
                 TextInput::make('order')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                TextInput::make('duration_minutes')
                     ->required()
                     ->numeric()
                     ->default(0),
@@ -68,18 +56,12 @@ class LessonsRelationManager extends RelationManager
                     ->searchable(),
                 TextColumn::make('slug')
                     ->searchable(),
-                TextColumn::make('video_url')
-                    ->searchable(),
-                TextColumn::make('attachment_path')
-                    ->searchable(),
-                TextColumn::make('type')
-                    ->badge(),
                 TextColumn::make('order')
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('duration_minutes')
-                    ->numeric()
-                    ->sortable(),
+                TextColumn::make('lessons_count')
+                    ->counts('lessons')
+                    ->label('Lessons'),
                 IconColumn::make('is_published')
                     ->boolean(),
                 TextColumn::make('created_at')
@@ -99,6 +81,11 @@ class LessonsRelationManager extends RelationManager
                 AssociateAction::make(),
             ])
             ->recordActions([
+                Action::make('manageLessons')
+                    ->label('Lessons')
+                    ->icon(Heroicon::OutlinedDocumentText)
+                    ->color('info')
+                    ->url(fn (Chapter $record): string => ChapterResource::getUrl('edit', ['record' => $record])),
                 EditAction::make(),
                 DissociateAction::make(),
                 DeleteAction::make(),

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Modules;
 use App\Filament\Resources\Modules\Pages\CreateModule;
 use App\Filament\Resources\Modules\Pages\EditModule;
 use App\Filament\Resources\Modules\Pages\ListModules;
+use App\Filament\Resources\Modules\RelationManagers\ChaptersRelationManager;
 use App\Filament\Resources\Modules\Schemas\ModuleForm;
 use App\Filament\Resources\Modules\Tables\ModulesTable;
 use App\Models\Module;
@@ -18,7 +19,9 @@ use UnitEnum;
 class ModuleResource extends Resource
 {
     protected static ?string $model = Module::class;
-protected static bool $shouldRegisterNavigation = false;
+
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFolderOpen;
 
     protected static ?string $navigationLabel = 'Modules';
@@ -42,7 +45,7 @@ protected static bool $shouldRegisterNavigation = false;
     public static function getRelations(): array
     {
         return [
-            //
+            ChaptersRelationManager::class,
         ];
     }
 

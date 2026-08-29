@@ -15,7 +15,7 @@ class TopologicalSort
     {
         $inDegrees = $graph->getInDegrees();
         $adjList = $graph->getAdjacencyList();
-        
+
         $queue = [];
         $order = [];
         $visitedCount = 0;
@@ -28,14 +28,14 @@ class TopologicalSort
             }
         }
 
-        while (!empty($queue)) {
+        while (! empty($queue)) {
             $u = array_shift($queue);
             $order[] = $u;
             $visitedCount++;
 
             foreach ($adjList[$u] as $v) {
                 $inDegrees[$v]--;
-                
+
                 if ($inDegrees[$v] === 0) {
                     $queue[] = $v;
                 }
@@ -44,7 +44,7 @@ class TopologicalSort
 
         // If visited count != total nodes, there is a cycle
         if ($visitedCount !== $totalNodes) {
-            throw new Exception("Cycle detected in course prerequisites! The learning path is impossible.");
+            throw new Exception('Cycle detected in course prerequisites! The learning path is impossible.');
         }
 
         return $order;

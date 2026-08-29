@@ -7,10 +7,10 @@ use App\Models\Enrollment;
 use App\Models\Lesson;
 use App\Models\LessonProgress;
 use App\Models\User;
-use Filament\Widgets\StatsOverviewWidget;
-use Filament\Widgets\StatsOverviewWidget\Stat;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use Filament\Widgets\StatsOverviewWidget;
+use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class PlatformStatsOverview extends StatsOverviewWidget
 {
@@ -56,7 +56,7 @@ class PlatformStatsOverview extends StatsOverviewWidget
 
         return [
             Stat::make('Total Users', number_format($totalUsers))
-                ->description($newUsersThisWeek . ' new this week')
+                ->description($newUsersThisWeek.' new this week')
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->descriptionColor($newUsersThisWeek > 0 ? 'success' : 'gray')
                 ->chart($userChart)
@@ -64,13 +64,13 @@ class PlatformStatsOverview extends StatsOverviewWidget
                 ->color('primary'),
 
             Stat::make('Courses', number_format($totalCourses))
-                ->description($publishedCourses . ' published')
+                ->description($publishedCourses.' published')
                 ->descriptionIcon('heroicon-m-check-badge')
                 ->descriptionColor('success')
                 ->color('info'),
 
             Stat::make('Enrollments', number_format($totalEnrollments))
-                ->description($enrollmentsThisMonth . ' this month')
+                ->description($enrollmentsThisMonth.' this month')
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->descriptionColor($enrollmentsThisMonth > 0 ? 'success' : 'gray')
                 ->chart($enrollmentChart)
@@ -78,7 +78,7 @@ class PlatformStatsOverview extends StatsOverviewWidget
                 ->color('success'),
 
             Stat::make('Lessons Completed', number_format($totalProgress))
-                ->description($completionRate . '% avg completion')
+                ->description($completionRate.'% avg completion')
                 ->descriptionIcon('heroicon-m-academic-cap')
                 ->descriptionColor('info')
                 ->color('warning'),
@@ -89,7 +89,7 @@ class PlatformStatsOverview extends StatsOverviewWidget
                 ->descriptionColor($reviewsDue > 10 ? 'danger' : 'success')
                 ->color($reviewsDue > 10 ? 'danger' : 'success'),
 
-            Stat::make('Active / Completed', $activeEnrollments . ' / ' . $completedEnrollments)
+            Stat::make('Active / Completed', $activeEnrollments.' / '.$completedEnrollments)
                 ->description('Enrollment status')
                 ->descriptionIcon('heroicon-m-chart-pie')
                 ->descriptionColor('primary')

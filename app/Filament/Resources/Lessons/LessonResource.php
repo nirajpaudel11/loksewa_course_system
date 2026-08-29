@@ -18,7 +18,9 @@ use UnitEnum;
 class LessonResource extends Resource
 {
     protected static ?string $model = Lesson::class;
-protected static bool $shouldRegisterNavigation = false;
+
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
 
     protected static ?string $navigationLabel = 'Lessons';

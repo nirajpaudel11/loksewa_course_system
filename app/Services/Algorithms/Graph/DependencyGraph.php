@@ -2,11 +2,10 @@
 
 namespace App\Services\Algorithms\Graph;
 
-use Exception;
-
 class DependencyGraph
 {
     private array $adjacencyList = [];
+
     private array $inDegrees = [];
 
     /**
@@ -14,7 +13,7 @@ class DependencyGraph
      */
     public function addNode(int $courseId): void
     {
-        if (!isset($this->adjacencyList[$courseId])) {
+        if (! isset($this->adjacencyList[$courseId])) {
             $this->adjacencyList[$courseId] = [];
             $this->inDegrees[$courseId] = 0;
         }
@@ -29,7 +28,7 @@ class DependencyGraph
         $this->addNode($prerequisiteId);
         $this->addNode($courseId);
 
-        if (!in_array($courseId, $this->adjacencyList[$prerequisiteId])) {
+        if (! in_array($courseId, $this->adjacencyList[$prerequisiteId])) {
             $this->adjacencyList[$prerequisiteId][] = $courseId;
             $this->inDegrees[$courseId]++;
         }

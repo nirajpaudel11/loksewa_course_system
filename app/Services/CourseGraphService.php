@@ -18,6 +18,7 @@ class CourseGraphService
         }
 
         $visited = [];
+
         return $this->dfsCycleDetection($prerequisiteId, $courseId, $visited);
     }
 
@@ -64,7 +65,7 @@ class CourseGraphService
         }
 
         if (isset($visiting[$courseId])) {
-            throw new Exception("Circular dependency detected during path generation.");
+            throw new Exception('Circular dependency detected during path generation.');
         }
 
         $visiting[$courseId] = true;
@@ -77,7 +78,7 @@ class CourseGraphService
 
         unset($visiting[$courseId]);
         $visited[$courseId] = true;
-        
+
         $course = Course::find($courseId);
         if ($course) {
             $path[] = $course;

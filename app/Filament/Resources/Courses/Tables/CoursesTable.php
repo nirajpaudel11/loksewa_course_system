@@ -21,7 +21,7 @@ class CoursesTable
                 TextColumn::make('slug')
                     ->searchable(),
                 ImageColumn::make('thumbnail')
-                ->disk('public')
+                    ->disk('public')
                     ->circular(),
                 IconColumn::make('is_published')
                     ->boolean(),

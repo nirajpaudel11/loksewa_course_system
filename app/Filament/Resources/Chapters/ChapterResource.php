@@ -20,6 +20,8 @@ class ChapterResource extends Resource
 {
     protected static ?string $model = Chapter::class;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBookmarkSquare;
 
     protected static ?string $navigationLabel = 'Chapters';

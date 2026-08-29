@@ -33,25 +33,31 @@ class AlgorithmDemoSeeder extends Seeder
 
         // ── 1. Create demo students ──────────────────────────────────
         $students = $this->createStudents();
-        $this->command->info('   ✅ Created ' . count($students) . ' demo students');
+        $this->command->info('   ✅ Created '.count($students).' demo students');
 
         // ── 2. Get all courses & lessons ──────────────────────────────
         $courses = Course::all();
         if ($courses->isEmpty()) {
             $this->command->error('   ❌ No courses found. Run LoksewaContentSeeder first.');
+
             return;
         }
 
         $allLessons = Lesson::all()->groupBy(function ($lesson) {
             // Group lessons by course via chapter -> module -> course chain
             $chapter = $lesson->chapter;
-            if (!$chapter) return null;
+            if (! $chapter) {
+                return null;
+            }
             $module = $chapter->module;
-            if (!$module) return null;
+            if (! $module) {
+                return null;
+            }
+
             return $module->course_id;
         })->filter();
 
-        $this->command->info('   📚 Found ' . $courses->count() . ' courses with lessons in ' . $allLessons->count() . ' courses');
+        $this->command->info('   📚 Found '.$courses->count().' courses with lessons in '.$allLessons->count().' courses');
 
         // ── 3. Seed Enrollments (feeds Trending + Collaborative Filtering) ─
         $this->seedEnrollments($students, $courses);
@@ -103,7 +109,7 @@ class AlgorithmDemoSeeder extends Seeder
             $students[] = User::firstOrCreate(
                 ['email' => $data['email']],
                 [
-                    'name'     => $data['name'],
+                    'name' => $data['name'],
                     'password' => Hash::make('password'),
                 ]
             );
@@ -139,23 +145,41 @@ class AlgorithmDemoSeeder extends Seeder
 
         // Group A: users 0-4 → courses at index 0,1,2
         foreach (range(0, 4) as $i) {
-            if (isset($courseIds[0])) $enrollmentMatrix[] = [$i, $courseIds[0], rand(1, 3)];   // very recent
-            if (isset($courseIds[1])) $enrollmentMatrix[] = [$i, $courseIds[1], rand(1, 5)];   // very recent
-            if (isset($courseIds[2])) $enrollmentMatrix[] = [$i, $courseIds[2], rand(10, 15)]; // mid-range
+            if (isset($courseIds[0])) {
+                $enrollmentMatrix[] = [$i, $courseIds[0], rand(1, 3)];
+            }   // very recent
+            if (isset($courseIds[1])) {
+                $enrollmentMatrix[] = [$i, $courseIds[1], rand(1, 5)];
+            }   // very recent
+            if (isset($courseIds[2])) {
+                $enrollmentMatrix[] = [$i, $courseIds[2], rand(10, 15)];
+            } // mid-range
         }
 
         // Group B: users 5-9 → courses at index 0,3,4
         foreach (range(5, 9) as $i) {
-            if (isset($courseIds[0])) $enrollmentMatrix[] = [$i, $courseIds[0], rand(2, 7)];   // recent
-            if (isset($courseIds[3])) $enrollmentMatrix[] = [$i, $courseIds[3], rand(12, 20)]; // mid-range
-            if (isset($courseIds[4])) $enrollmentMatrix[] = [$i, $courseIds[4], rand(25, 30)]; // old
+            if (isset($courseIds[0])) {
+                $enrollmentMatrix[] = [$i, $courseIds[0], rand(2, 7)];
+            }   // recent
+            if (isset($courseIds[3])) {
+                $enrollmentMatrix[] = [$i, $courseIds[3], rand(12, 20)];
+            } // mid-range
+            if (isset($courseIds[4])) {
+                $enrollmentMatrix[] = [$i, $courseIds[4], rand(25, 30)];
+            } // old
         }
 
         // Group C: users 10-14 → courses at index 1,2,4
         foreach (range(10, 14) as $i) {
-            if (isset($courseIds[1])) $enrollmentMatrix[] = [$i, $courseIds[1], rand(1, 4)];   // very recent
-            if (isset($courseIds[2])) $enrollmentMatrix[] = [$i, $courseIds[2], rand(8, 14)];  // mid-range
-            if (isset($courseIds[4])) $enrollmentMatrix[] = [$i, $courseIds[4], rand(20, 28)]; // older
+            if (isset($courseIds[1])) {
+                $enrollmentMatrix[] = [$i, $courseIds[1], rand(1, 4)];
+            }   // very recent
+            if (isset($courseIds[2])) {
+                $enrollmentMatrix[] = [$i, $courseIds[2], rand(8, 14)];
+            }  // mid-range
+            if (isset($courseIds[4])) {
+                $enrollmentMatrix[] = [$i, $courseIds[4], rand(20, 28)];
+            } // older
         }
 
         // Also add some cross-group enrollments for richer CF data
@@ -183,21 +207,25 @@ class AlgorithmDemoSeeder extends Seeder
 
         $created = 0;
         foreach ($enrollmentMatrix as [$studentIdx, $courseId, $daysAgo]) {
-            if (!isset($students[$studentIdx])) continue;
+            if (! isset($students[$studentIdx])) {
+                continue;
+            }
 
             $exists = Enrollment::where('user_id', $students[$studentIdx]->id)
                 ->where('course_id', $courseId)
                 ->exists();
 
-            if ($exists) continue;
+            if ($exists) {
+                continue;
+            }
 
             $progressPct = rand(10, 95);
             $status = $progressPct >= 90 ? 'completed' : 'active';
 
             $enrollment = Enrollment::create([
-                'user_id'             => $students[$studentIdx]->id,
-                'course_id'           => $courseId,
-                'status'              => $status,
+                'user_id' => $students[$studentIdx]->id,
+                'course_id' => $courseId,
+                'status' => $status,
                 'progress_percentage' => $progressPct,
             ]);
 
@@ -208,7 +236,7 @@ class AlgorithmDemoSeeder extends Seeder
             $created++;
         }
 
-        $this->command->info("     → {$created} enrollments created across " . count($courseIds) . " courses");
+        $this->command->info("     → {$created} enrollments created across ".count($courseIds).' courses');
     }
 
     /**
@@ -230,9 +258,9 @@ class AlgorithmDemoSeeder extends Seeder
         // SM-2 difficulty presets
         $difficultyPresets = [
             // [easiness_factor, interval_days, repetitions, review_offset_days]
-            'easy'   => ['ef_min' => 2.5, 'ef_max' => 3.0, 'interval' => [6, 15, 30],  'reps' => [3, 5, 8]],
+            'easy' => ['ef_min' => 2.5, 'ef_max' => 3.0, 'interval' => [6, 15, 30],  'reps' => [3, 5, 8]],
             'medium' => ['ef_min' => 1.8, 'ef_max' => 2.4, 'interval' => [1, 3, 6],    'reps' => [1, 2, 3]],
-            'hard'   => ['ef_min' => 1.3, 'ef_max' => 1.7, 'interval' => [1, 1, 2],    'reps' => [0, 1, 1]],
+            'hard' => ['ef_min' => 1.3, 'ef_max' => 1.7, 'interval' => [1, 1, 2],    'reps' => [0, 1, 1]],
         ];
 
         foreach ($students as $sIdx => $student) {
@@ -240,14 +268,18 @@ class AlgorithmDemoSeeder extends Seeder
             $enrollments = Enrollment::where('user_id', $student->id)->pluck('course_id')->toArray();
 
             foreach ($enrollments as $courseId) {
-                if (!isset($lessonsByCourse[$courseId])) continue;
+                if (! isset($lessonsByCourse[$courseId])) {
+                    continue;
+                }
 
                 $lessons = $lessonsByCourse[$courseId]->values();
-                if ($lessons->isEmpty()) continue;
+                if ($lessons->isEmpty()) {
+                    continue;
+                }
 
                 // Determine how many lessons this student has completed (60-100%)
                 $completionRatio = rand(60, 100) / 100;
-                $completedCount  = max(1, (int) floor($lessons->count() * $completionRatio));
+                $completedCount = max(1, (int) floor($lessons->count() * $completionRatio));
                 $lessonsToComplete = $lessons->take($completedCount);
 
                 // Determine student's pace (hours between lessons)
@@ -302,12 +334,12 @@ class AlgorithmDemoSeeder extends Seeder
                     }
 
                     LessonProgress::create([
-                        'user_id'          => $student->id,
-                        'lesson_id'        => $lesson->id,
-                        'completed_at'     => $completedAt,
-                        'easiness_factor'  => $ef,
-                        'interval'         => $interval,
-                        'repetitions'      => $reps,
+                        'user_id' => $student->id,
+                        'lesson_id' => $lesson->id,
+                        'completed_at' => $completedAt,
+                        'easiness_factor' => $ef,
+                        'interval' => $interval,
+                        'repetitions' => $reps,
                         'next_review_date' => $nextReview,
                     ]);
 

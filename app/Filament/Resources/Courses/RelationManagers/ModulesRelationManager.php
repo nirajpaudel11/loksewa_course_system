@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\Courses\RelationManagers;
 
+use App\Filament\Resources\Modules\ModuleResource;
+use App\Models\Module;
+use Filament\Actions\Action;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -10,11 +13,12 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\DissociateAction;
 use Filament\Actions\DissociateBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -55,6 +59,9 @@ class ModulesRelationManager extends RelationManager
                 TextColumn::make('order')
                     ->numeric()
                     ->sortable(),
+                TextColumn::make('chapters_count')
+                    ->counts('chapters')
+                    ->label('Chapters'),
                 IconColumn::make('is_published')
                     ->boolean(),
                 TextColumn::make('created_at')
@@ -74,6 +81,11 @@ class ModulesRelationManager extends RelationManager
                 AssociateAction::make(),
             ])
             ->recordActions([
+                Action::make('manageChapters')
+                    ->label('Chapters')
+                    ->icon(Heroicon::OutlinedBookmarkSquare)
+                    ->color('info')
+                    ->url(fn (Module $record): string => ModuleResource::getUrl('edit', ['record' => $record])),
                 EditAction::make(),
                 DissociateAction::make(),
                 DeleteAction::make(),
