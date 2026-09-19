@@ -46,10 +46,37 @@
                         </div>
                     </div>
                     <div class="p-6 flex-1 flex flex-col">
-                        <div
-                            class="flex items-center gap-2 text-emerald-600 text-[10px] font-black uppercase tracking-tighter mb-2">
-                            <i data-lucide="book-open" class="w-3 h-3"></i>
-                            Open Access Course
+                        @php
+                            $userEnr = isset($userEnrollments) ? ($userEnrollments[$course->id] ?? null) : null;
+                        @endphp
+                        <div class="flex items-center justify-between gap-2 mb-2 flex-wrap">
+                            <div class="flex items-center gap-1.5 text-emerald-600 text-[10px] font-black uppercase tracking-tighter">
+                                <i data-lucide="book-open" class="w-3 h-3"></i>
+                                <span>Preparation Track</span>
+                            </div>
+                            @if($userEnr)
+                                @if($userEnr->status === 'rejected')
+                                    <span class="inline-flex items-center gap-1 text-[10px] font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200">
+                                        <i data-lucide="x-circle" class="w-2.5 h-2.5 text-rose-500"></i>
+                                        <span>Request Rejected</span>
+                                    </span>
+                                @elseif($userEnr->status === 'pending')
+                                    <span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                                        <i data-lucide="clock" class="w-2.5 h-2.5 text-amber-500"></i>
+                                        <span>Pending Approval</span>
+                                    </span>
+                                @elseif($userEnr->status === 'completed')
+                                    <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">
+                                        <i data-lucide="check-circle-2" class="w-2.5 h-2.5 text-emerald-600"></i>
+                                        <span>Completed</span>
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                                        <i data-lucide="check-circle" class="w-2.5 h-2.5 text-emerald-600"></i>
+                                        <span>Enrolled ({{ $userEnr->progress_percentage }}%)</span>
+                                    </span>
+                                @endif
+                            @endif
                         </div>
                         <h4 class="text-lg font-bold text-gray-900 mb-3 leading-tight">{{ $course->title }}</h4>
                         <p class="text-gray-500 text-sm mb-6 leading-relaxed flex-1">

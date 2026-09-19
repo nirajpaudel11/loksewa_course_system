@@ -16,6 +16,9 @@ class RestoreOriginalPdfs
         self::restoreCourseSyllabi();
         self::restoreLessonPdfsAndQuizzes();
         self::restoreModulePdfsAndQuizzes();
+
+        // Generate clean white-background PDFs for any remaining lessons without PDFs
+        app(\App\Services\LessonPdfGeneratorService::class)->generateMissingLessonPdfs();
     }
 
     /**

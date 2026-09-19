@@ -57,4 +57,48 @@ class EnrollmentTest extends TestCase
             'status' => 'active',
         ]);
     }
+
+    public function test_user_cannot_unenroll_from_completed_course(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::create(['title' => 'Completed Course', 'slug' => 'completed-course', 'is_published' => true]);
+
+        $enrollment = Enrollment::create([
+            'user_id' => $user->id,
+            'course_id' => $course->id,
+            'status' => 'completed',
+            'progress_percentage' => 100,
+        ]);
+
+        $response = $this->actingAs($user)
+            ->post(route('courses.unenroll', $course));
+
+        $response->assertRedirect();
+        $response->assertSessionHas('error');
+
+        $this->assertDatabaseHas('enrollments', [
+            'id' => $enrollment->id,
+            'course_id' => $course->id,
+            'user_id' => $user->id,
+        ]);
+    }
+
+    public function test_user_can_recalculate_pacing_predictions(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::create(['title' => 'Pacing Course', 'slug' => 'pacing-course', 'is_published' => true]);
+
+        Enrollment::create([
+            'user_id' => $user->id,
+            'course_id' => $course->id,
+            'status' => 'active',
+            'progress_percentage' => 50,
+        ]);
+
+        $response = $this->actingAs($user)
+            ->post(route('pacing.recalculate'));
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+    }
 }

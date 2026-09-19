@@ -35,19 +35,26 @@ class LessonProgressService
 
     public function updateEnrollmentProgress(int $userId, Course $course, Enrollment $enrollment): int
     {
-        $totalLessons = $course->lessons()->count();
+        $courseLessonIds = $course->lessons()->pluck('lessons.id');
+        $totalLessons = $courseLessonIds->count();
 
         $completedLessons = LessonProgress::where('user_id', $userId)
-            ->whereIn('lesson_id', $course->lessons()->pluck('lessons.id'))
+            ->whereIn('lesson_id', $courseLessonIds)
             ->whereNotNull('completed_at')
             ->count();
 
         $progressPercentage = $totalLessons > 0 ? (int) round(($completedLessons / $totalLessons) * 100) : 0;
-        $progressPercentage = max($progressPercentage, (int) ($enrollment->progress_percentage ?? 0));
+
+        $newStatus = $enrollment->status;
+        if ($progressPercentage >= 100) {
+            $newStatus = 'completed';
+        } elseif ($enrollment->status === 'completed' && $progressPercentage < 100) {
+            $newStatus = 'active';
+        }
 
         $enrollment->update([
             'progress_percentage' => $progressPercentage,
-            'status' => $progressPercentage >= 100 ? 'completed' : 'active',
+            'status' => $newStatus,
         ]);
 
         // Refresh pacing calculation when enrollment progress updates

@@ -56,6 +56,26 @@ class AlgorithmReport extends Page
                         ->success()
                         ->send();
                 }),
+            Action::make('recalculatePacing')
+                ->label('Recalculate Pacing & Predictions')
+                ->icon(Heroicon::OutlinedSparkles)
+                ->color('success')
+                ->requiresConfirmation()
+                ->modalHeading('Recalculate Learning Pacing Predictions')
+                ->modalDescription('This will recalculate velocity multipliers and completion predictions for all students.')
+                ->action(function (LearningPacingService $pacingService) {
+                    $users = User::all();
+                    foreach ($users as $user) {
+                        $pacingService->recalculateUserPace($user);
+                    }
+
+                    $this->dispatch('refresh');
+
+                    Notification::make()
+                        ->title('Learning pacing and predictions recalculated successfully')
+                        ->success()
+                        ->send();
+                }),
         ];
     }
 

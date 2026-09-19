@@ -40,10 +40,11 @@ class LoksewaAlgorithmSeeder extends Seeder
             return;
         }
 
-        // Group all lessons by course ID
-        $lessonsByCourse = Lesson::with('chapter.module')->get()->groupBy(function ($lesson) {
-            return $lesson->chapter?->module?->course_id;
-        })->filter();
+        // Group all lessons by course ID (supporting both chapter and direct module lessons)
+        $lessonsByCourse = collect();
+        foreach ($courses as $course) {
+            $lessonsByCourse->put($course->id, $course->lessons()->orderBy('lessons.order')->orderBy('lessons.id')->get());
+        }
 
         // 1. Clear existing enrollments & progress for users
         $studentIds = $students->pluck('id')->toArray();
@@ -184,7 +185,14 @@ class LoksewaAlgorithmSeeder extends Seeder
                 }
 
                 $totalLessons = $lessons->count();
-                $completedLessonCount = max(1, (int) round(($enrollment->progress_percentage / 100) * $totalLessons));
+                $targetProg = (int) ($enrollment->progress_percentage ?? 0);
+                $completedLessonCount = max(0, min($totalLessons, (int) round(($targetProg / 100) * $totalLessons)));
+
+                // If user has a non-zero progress plan and total lessons exist, ensure at least 1 lesson
+                if ($targetProg > 0 && $completedLessonCount === 0 && $totalLessons > 0) {
+                    $completedLessonCount = 1;
+                }
+
                 $completedLessons = $lessons->take($completedLessonCount);
 
                 // Baseline interval between lesson completions in hours (scaled by student pace)
@@ -233,6 +241,13 @@ class LoksewaAlgorithmSeeder extends Seeder
 
                     $createdCount++;
                 }
+
+                // Synchronize exact calculated progress percentage on enrollment
+                $actualProgress = $totalLessons > 0 ? (int) round(($completedLessonCount / $totalLessons) * 100) : 0;
+                $enrollment->update([
+                    'progress_percentage' => $actualProgress,
+                    'status' => $actualProgress >= 100 ? 'completed' : 'active',
+                ]);
             }
         }
 

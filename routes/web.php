@@ -31,6 +31,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/courses/{course_slug}/lessons/{lesson_slug}/complete', [LessonController::class, 'complete'])->name('lessons.complete');
     Route::post('/courses/{course}/enroll', [EnrollmentController::class, 'enroll'])->name('courses.enroll');
     Route::post('/courses/{course}/unenroll', [EnrollmentController::class, 'unenroll'])->name('courses.unenroll');
+    Route::post('/pacing/recalculate', [FrontendController::class, 'recalculatePacing'])->name('pacing.recalculate');
 
     // Spaced Repetition Flashcard Reviews (1 MCQ extracted per lesson)
     Route::get('/courses/{slug}/flashcards', [FrontendController::class, 'courseFlashcards'])->name('courses.flashcards');

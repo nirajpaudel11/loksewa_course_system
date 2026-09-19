@@ -42,9 +42,17 @@ class EnrollmentController extends Controller
         $userId = Auth::id();
 
         if ($userId) {
-            Enrollment::where('user_id', $userId)
+            $enrollment = Enrollment::where('user_id', $userId)
                 ->where('course_id', $course->id)
-                ->delete();
+                ->first();
+
+            if ($enrollment) {
+                if ($enrollment->status === 'completed' || $enrollment->progress_percentage >= 100) {
+                    return redirect()->back()->with('error', 'Unenrollment is disabled for completed courses.');
+                }
+
+                $enrollment->delete();
+            }
         }
 
         return redirect()->back()->with('success', 'You have been unenrolled from '.$course->title);

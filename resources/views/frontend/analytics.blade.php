@@ -50,11 +50,18 @@
     <!-- Pacing Breakdown Table -->
     @if(isset($enrolledPacing) && count($enrolledPacing) > 0)
         <div class="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm mb-8">
-            <div class="flex items-center justify-between mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div>
                     <h4 class="text-lg font-black text-gray-900">Course Pacing &amp; Estimated Readiness</h4>
                     <p class="text-xs text-gray-400">Projected completion date based on your historical learning velocity</p>
                 </div>
+                <form action="{{ route('pacing.recalculate') }}" method="POST" class="inline">
+                    @csrf
+                    <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer">
+                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-emerald-600"></i>
+                        <span>Recalculate Predictions</span>
+                    </button>
+                </form>
             </div>
 
             <div class="overflow-x-auto">

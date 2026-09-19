@@ -83,23 +83,30 @@ class FrontendController extends Controller
                         ->whereNotNull('completed_at')
                         ->count();
 
-                    if ($completedInCourse > 0 && $totalLessons > 0) {
-                        $progressPercentage = (int) round(($completedInCourse / $totalLessons) * 100);
-                    } else {
-                        $progressPercentage = (int) ($enrollment->progress_percentage ?? 0);
-                    }
+                    $progressPercentage = $totalLessons > 0
+                        ? (int) round(($completedInCourse / $totalLessons) * 100)
+                        : (int) ($enrollment->progress_percentage ?? 0);
 
-                    $effectiveCompleted = $completedInCourse > 0
-                        ? $completedInCourse
-                        : ($totalLessons > 0 && $progressPercentage > 0 ? (int) round(($progressPercentage / 100) * $totalLessons) : 0);
+                    if ($enrollment->progress_percentage !== $progressPercentage) {
+                        $newStatus = $enrollment->status;
+                        if ($progressPercentage >= 100) {
+                            $newStatus = 'completed';
+                        } elseif ($enrollment->status === 'completed' && $progressPercentage < 100) {
+                            $newStatus = 'active';
+                        }
+                        $enrollment->update([
+                            'progress_percentage' => $progressPercentage,
+                            'status' => $newStatus,
+                        ]);
+                    }
 
                     $enrolledPacing[] = [
                         'enrollment' => $enrollment,
                         'course' => $enrollment->course,
                         'predicted_date' => $predictedDate,
                         'total_lessons' => $totalLessons,
-                        'completed_lessons' => $effectiveCompleted,
-                        'remaining_lessons' => max(0, $totalLessons - $effectiveCompleted),
+                        'completed_lessons' => $completedInCourse,
+                        'remaining_lessons' => max(0, $totalLessons - $completedInCourse),
                         'progress_percentage' => $progressPercentage,
                         'pace_multiplier' => $user->learning_pace_multiplier ?? 1.0,
                     ];
@@ -136,6 +143,9 @@ class FrontendController extends Controller
             'due_courses_count' => $dueCourses->count(),
         ];
 
+        // Rejected enrollments notice for the student
+        $rejectedEnrollments = $userId ? Enrollment::where('user_id', $userId)->where('status', 'rejected')->with('course')->get() : collect();
+
         return view('frontend.dashboard', [
             'courses' => $courses,
             'recommendations' => $recommendations,
@@ -143,6 +153,7 @@ class FrontendController extends Controller
             'dueReviews' => $dueReviews,
             'dueCourses' => $dueCourses,
             'stats' => $stats,
+            'rejectedEnrollments' => $rejectedEnrollments,
         ]);
     }
 
@@ -165,7 +176,9 @@ class FrontendController extends Controller
             return view('frontend.public-catalog', compact('courses', 'search'));
         }
 
-        return view('frontend.catalog', compact('courses', 'search'));
+        $userEnrollments = Enrollment::where('user_id', Auth::id())->get()->keyBy('course_id');
+
+        return view('frontend.catalog', compact('courses', 'search', 'userEnrollments'));
     }
 
     public function courseDetails($slug)
@@ -184,7 +197,8 @@ class FrontendController extends Controller
                 ->first();
             $isEnrolled = (bool) $enrollment;
             if ($enrollment) {
-                $progressPercentage = $enrollment->progress_percentage;
+                $lessonProgressService = app(LessonProgressService::class);
+                $progressPercentage = $lessonProgressService->updateEnrollmentProgress($userId, $course, $enrollment);
             }
         }
 
@@ -387,6 +401,24 @@ class FrontendController extends Controller
             'next_review_date' => $progress->next_review_date ? Carbon::parse($progress->next_review_date)->format('Y-m-d') : null,
             'next_review_human' => $progress->next_review_date ? Carbon::parse($progress->next_review_date)->diffForHumans() : 'Today',
         ]);
+    }
+
+    public function recalculatePacing(Request $request, LearningPacingService $pacingService)
+    {
+        $user = Auth::user();
+
+        if ($user) {
+            $pacingService->recalculateUserPace($user);
+
+            $enrollments = Enrollment::where('user_id', $user->id)->with('course')->get();
+            foreach ($enrollments as $enrollment) {
+                if ($enrollment->course) {
+                    $pacingService->predictCompletionDate($user, $enrollment->course, true);
+                }
+            }
+        }
+
+        return redirect()->back()->with('success', '⚡ Completion predictions & personal pace have been recalculated successfully!');
     }
 
     private function studentCount(): int

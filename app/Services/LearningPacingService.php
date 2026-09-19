@@ -11,19 +11,20 @@ use Carbon\Carbon;
 class LearningPacingService
 {
     /**
-     * Predicts when a user will finish a course based on their historical pace.
+     * Recalculates user's pace multiplier based on recent lesson progress history.
      */
-    public function predictCompletionDate(User $user, Course $course): ?Carbon
+    public function recalculateUserPace(User $user): float
     {
-        // 1. Calculate user's average time per lesson across all courses
         $completedLessons = LessonProgress::where('user_id', $user->id)
             ->whereNotNull('completed_at')
             ->orderBy('completed_at', 'asc')
             ->get();
 
         if ($completedLessons->count() < 3) {
-            // Not enough data to predict pacing
-            return null;
+            $user->learning_pace_multiplier = 1.0;
+            $user->save();
+
+            return 1.0;
         }
 
         $totalTimeDiff = 0;
@@ -42,13 +43,38 @@ class LearningPacingService
         }
 
         $averageHoursPerLesson = $validIntervals > 0 ? ($totalTimeDiff / $validIntervals) : 24;
-
-        if ($user->learning_pace_multiplier && $user->learning_pace_multiplier > 0) {
-            $averageHoursPerLesson = 24 * (float) $user->learning_pace_multiplier;
-        } else {
-            $user->learning_pace_multiplier = round($averageHoursPerLesson / 24, 2);
-            $user->save();
+        $multiplier = round($averageHoursPerLesson / 24, 2);
+        if ($multiplier <= 0) {
+            $multiplier = 1.0;
         }
+
+        $user->learning_pace_multiplier = $multiplier;
+        $user->save();
+
+        return (float) $multiplier;
+    }
+
+    /**
+     * Predicts when a user will finish a course based on their historical pace.
+     */
+    public function predictCompletionDate(User $user, Course $course, bool $forceRecalculate = false): ?Carbon
+    {
+        // 1. Calculate user's average time per lesson across all courses
+        $completedLessons = LessonProgress::where('user_id', $user->id)
+            ->whereNotNull('completed_at')
+            ->orderBy('completed_at', 'asc')
+            ->get();
+
+        if ($completedLessons->count() < 3) {
+            // Not enough data to predict pacing
+            return null;
+        }
+
+        if ($forceRecalculate || empty($user->learning_pace_multiplier) || $user->learning_pace_multiplier <= 0) {
+            $this->recalculateUserPace($user);
+        }
+
+        $averageHoursPerLesson = 24 * (float) ($user->learning_pace_multiplier ?: 1.0);
 
         // 2. Count remaining lessons in target course
         $courseLessonIds = $course->lessons()->pluck('lessons.id');

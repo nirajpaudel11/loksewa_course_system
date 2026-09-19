@@ -36,6 +36,27 @@
         <span class="text-gray-900 font-bold"><?php echo e($course->title); ?></span>
     </nav>
 
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isEnrolled && $enrollment && $enrollment->status === 'rejected'): ?>
+        <div class="mb-8 p-4 bg-rose-50 border border-rose-200 text-rose-900 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                    <i data-lucide="x-circle" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h5 class="text-xs font-extrabold text-rose-900 uppercase tracking-wider">Enrollment Notice</h5>
+                    <p class="text-xs text-rose-700 mt-0.5">Your enrollment request for this course was rejected by the administrator. Lesson access is currently locked. You can submit a new application below.</p>
+                </div>
+            </div>
+            <form action="<?php echo e(route('courses.enroll', $course->id)); ?>" method="POST" class="shrink-0 w-full sm:w-auto">
+                <?php echo csrf_field(); ?>
+                <button type="submit" class="w-full sm:w-auto px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5">
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                    <span>Re-apply Now</span>
+                </button>
+            </form>
+        </div>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
     <div class="flex flex-col lg:flex-row gap-12">
         <!-- Left: Course Info & Modules Content -->
         <div class="flex-1 min-w-0">
@@ -276,6 +297,11 @@
                                         <i data-lucide="lock" class="w-3.5 h-3.5 text-amber-600"></i>
                                         <span>Verification Pending</span>
                                     </span>
+                                <?php elseif($isEnrolled && $enrollment && $enrollment->status === 'rejected'): ?>
+                                    <span class="w-full md:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold">
+                                        <i data-lucide="x-circle" class="w-3.5 h-3.5 text-rose-600"></i>
+                                        <span>Request Rejected</span>
+                                    </span>
                                 <?php else: ?>
                                     <span class="w-full md:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-400 text-xs font-bold">
                                         <i data-lucide="lock" class="w-3.5 h-3.5 text-gray-300"></i>
@@ -355,13 +381,17 @@
                                 <div class="w-10 h-10 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-2.5">
                                     <i data-lucide="x-circle" class="w-5 h-5"></i>
                                 </div>
-                                <h5 class="text-rose-900 font-extrabold text-sm mb-1">Enrollment Rejected</h5>
-                                <p class="text-rose-700 text-xs leading-relaxed mb-3">Your enrollment was not approved by the administrator.</p>
+                                <h5 class="text-rose-900 font-extrabold text-sm mb-1">Enrollment Rejected ❌</h5>
+                                <p class="text-rose-700 text-xs leading-relaxed mb-2">Your enrollment was not approved by the administrator.</p>
+                                <span class="inline-block px-3 py-1 bg-rose-200/80 text-rose-900 rounded-full text-[11px] font-bold">
+                                    Access Restricted
+                                </span>
                             </div>
                             <form action="<?php echo e(route('courses.enroll', $course->id)); ?>" method="POST">
                                 <?php echo csrf_field(); ?>
-                                <button class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-2xl font-bold text-sm transition-all shadow-md">
-                                    Re-apply for Enrollment
+                                <button class="w-full bg-rose-600 hover:bg-rose-700 text-white py-3.5 rounded-2xl font-bold text-sm transition-all shadow-md flex items-center justify-center gap-2">
+                                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                    <span>Re-apply for Enrollment</span>
                                 </button>
                             </form>
                         </div>
@@ -393,22 +423,32 @@
                                 } elseif ($firstModule) {
                                     $targetUrl = route('modules.show', [$course->slug, $firstModule->slug]);
                                 }
+                                $isCourseCompleted = ($progressPercentage ?? 0) >= 100 || ($enrollment->status ?? '') === 'completed';
                             ?>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($targetUrl): ?>
                                 <a href="<?php echo e($targetUrl); ?>" class="w-full block text-center bg-gray-900 hover:bg-black text-white py-4 rounded-2xl font-bold text-base transition-all shadow-xl">
-                                    <?php echo e(($progressPercentage ?? 0) > 0 ? 'Resume Learning 🚀' : 'Start Learning 🚀'); ?>
+                                    <?php echo e($isCourseCompleted ? 'Review Course Material 📖' : (($progressPercentage ?? 0) > 0 ? 'Resume Learning 🚀' : 'Start Learning 🚀')); ?>
 
                                 </a>
                             <?php else: ?>
                                 <div class="bg-gray-50 p-4 rounded-2xl text-center text-xs text-gray-400 italic">No modules available yet.</div>
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                            <form action="<?php echo e(route('courses.unenroll', $course->id)); ?>" method="POST" class="mt-4">
-                                <?php echo csrf_field(); ?>
-                                <button type="submit" class="w-full text-center text-red-500 hover:text-red-700 text-xs font-bold uppercase tracking-widest transition-colors">
-                                    Unenroll from this course
-                                </button>
-                            </form>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(! $isCourseCompleted): ?>
+                                <form action="<?php echo e(route('courses.unenroll', $course->id)); ?>" method="POST" class="mt-4">
+                                    <?php echo csrf_field(); ?>
+                                    <button type="submit" class="w-full text-center text-red-500 hover:text-red-700 text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer">
+                                        Unenroll from this course
+                                    </button>
+                                </form>
+                            <?php else: ?>
+                                <div class="mt-3 p-3 bg-emerald-50/70 border border-emerald-100 rounded-xl text-center">
+                                    <p class="text-[11px] font-bold text-emerald-800 flex items-center justify-center gap-1.5">
+                                        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i>
+                                        Course Completed • Unenrollment Disabled
+                                    </p>
+                                </div>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 <?php else: ?>
