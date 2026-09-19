@@ -5,7 +5,7 @@ namespace App\Filament\Resources\Modules;
 use App\Filament\Resources\Modules\Pages\CreateModule;
 use App\Filament\Resources\Modules\Pages\EditModule;
 use App\Filament\Resources\Modules\Pages\ListModules;
-use App\Filament\Resources\Modules\RelationManagers\ChaptersRelationManager;
+use App\Filament\Resources\Modules\RelationManagers\LessonsRelationManager;
 use App\Filament\Resources\Modules\Schemas\ModuleForm;
 use App\Filament\Resources\Modules\Tables\ModulesTable;
 use App\Models\Module;
@@ -20,7 +20,7 @@ class ModuleResource extends Resource
 {
     protected static ?string $model = Module::class;
 
-    protected static bool $shouldRegisterNavigation = false;
+    protected static bool $shouldRegisterNavigation = true;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFolderOpen;
 
@@ -45,7 +45,7 @@ class ModuleResource extends Resource
     public static function getRelations(): array
     {
         return [
-            ChaptersRelationManager::class,
+            LessonsRelationManager::class,
         ];
     }
 

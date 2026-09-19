@@ -13,9 +13,19 @@ class Module extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'quiz_questions' => 'array',
+        'is_published' => 'boolean',
+    ];
+
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class);
+    }
+
+    public function lessons(): HasMany
+    {
+        return $this->hasMany(Lesson::class)->orderBy('order');
     }
 
     public function chapters(): HasMany

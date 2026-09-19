@@ -271,8 +271,9 @@ class AlgorithmReport extends Page
      */
     private function getLearningPacingReport(): array
     {
-        $usersWithProgress = User::whereHas('enrollments')
-            ->limit(5)
+        $usersWithProgress = User::whereHas('roles', fn ($q) => $q->where('name', 'user'))
+            ->whereHas('enrollments')
+            ->limit(8)
             ->get();
 
         $service = app(LearningPacingService::class);
@@ -290,14 +291,16 @@ class AlgorithmReport extends Page
 
                 try {
                     $predicted = $service->predictCompletionDate($user, $enrollment->course);
-                    $predictions[] = [
-                        'user_name' => $user->name,
-                        'course_title' => $enrollment->course->title,
-                        'predicted_date' => $predicted?->format('M d, Y') ?? 'Insufficient data',
-                        'pace_multiplier' => $user->learning_pace_multiplier ?? null,
-                    ];
+                    if ($predicted) {
+                        $predictions[] = [
+                            'user_name' => $user->name,
+                            'course_title' => $enrollment->course->title,
+                            'predicted_date' => $predicted->format('M d, Y'),
+                            'pace_multiplier' => $user->learning_pace_multiplier ?? 1.0,
+                        ];
+                    }
                 } catch (Exception $e) {
-                    // Skip if prediction fails
+                    // Skip on error
                 }
             }
         }

@@ -77,4 +77,26 @@ class LandingDashboardTest extends TestCase
             'password' => 'password',
         ])->assertRedirect(route('dashboard'));
     }
+
+    public function test_authenticated_student_can_open_analytics_page(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->get(route('analytics'))
+            ->assertOk()
+            ->assertSee('Learning Analytics')
+            ->assertSee('Pace Multiplier');
+    }
+
+    public function test_authenticated_student_can_open_dashboard_with_pacing_widgets(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('Learning Pacing')
+            ->assertSee('Exam Readiness');
+    }
 }

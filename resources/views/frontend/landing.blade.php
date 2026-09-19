@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loksewa Path | Preparation Courses</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('images/logo-icon.svg') }}">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 </head>
 <body class="bg-gray-50 text-gray-900">
@@ -16,16 +18,17 @@
 
     <header class="landing-header">
         <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-            <a href="{{ route('landing') }}" class="landing-brand">
-                <span class="landing-brand-mark">LP</span>
-                <span>Loksewa Path</span>
+            <a href="{{ route('landing') }}" class="landing-brand flex items-center gap-2.5">
+                <img src="{{ asset('images/logo.png') }}" alt="Loksewa LMS" style="width: 36px; height: 36px; border-radius: 10px; object-fit: cover; box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);">
+                <span class="font-black text-slate-900 tracking-tight">Loksewa Path</span>
             </a>
             <nav class="flex items-center gap-3">
                 <a href="{{ url('/catalog') }}" class="landing-nav-link">Courses</a>
                 @auth
                     <a href="{{ route('dashboard') }}" class="landing-btn landing-btn-dark">Dashboard</a>
                 @else
-                    <a href="{{ route('login') }}" class="landing-btn landing-btn-primary">Sign In</a>
+                    <a href="{{ route('login') }}" class="landing-btn landing-btn-light">Sign In</a>
+                    <a href="{{ route('register') }}" class="landing-btn landing-btn-primary">Sign Up</a>
                 @endauth
             </nav>
         </div>
@@ -40,8 +43,9 @@
                     Browse structured preparation tracks, preview lessons and quizzes, then sign in to continue with progress tracking and recommendations.
                 </p>
                 <div class="landing-actions">
-                    <a href="{{ url('/catalog') }}" class="landing-btn landing-btn-primary landing-btn-lg">Browse Courses</a>
+                    <a href="{{ route('register') }}" class="landing-btn landing-btn-primary landing-btn-lg">Create an Account</a>
                     <a href="{{ route('login') }}" class="landing-btn landing-btn-light landing-btn-lg">Student Sign In</a>
+                    <a href="{{ url('/catalog') }}" class="landing-btn landing-btn-dark landing-btn-lg">Browse Courses</a>
                 </div>
             </div>
         </section>

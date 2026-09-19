@@ -27,7 +27,8 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('Loksewa Course')
+            ->brandName('Loksewa Path')
+            ->favicon(asset('images/logo.png'))
             ->colors([
                 'primary' => Color::Emerald,
             ])

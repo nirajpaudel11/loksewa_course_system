@@ -14,6 +14,17 @@ class LessonProgress extends Model
         'easiness_factor', 'interval', 'repetitions', 'next_review_date',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'completed_at' => 'datetime',
+            'next_review_date' => 'datetime',
+            'easiness_factor' => 'float',
+            'interval' => 'integer',
+            'repetitions' => 'integer',
+        ];
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

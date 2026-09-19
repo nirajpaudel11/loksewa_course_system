@@ -23,6 +23,27 @@ class CoursesTable
                 ImageColumn::make('thumbnail')
                     ->disk('public')
                     ->circular(),
+                TextColumn::make('level')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'beginner' => 'info',
+                        'intermediate' => 'warning',
+                        'advanced' => 'danger',
+                        default => 'gray',
+                    })
+                    ->sortable(),
+                TextColumn::make('modules_count')
+                    ->counts('modules')
+                    ->label('Modules')
+                    ->badge()
+                    ->color('success'),
+                TextColumn::make('syllabus_pdf')
+                    ->label('Syllabus PDF')
+                    ->formatStateUsing(fn ($state) => ! empty($state) ? '📄 ' . basename($state) : '—')
+                    ->badge()
+                    ->color(fn ($state) => ! empty($state) ? 'primary' : 'gray')
+                    ->url(fn ($record) => ! empty($record->syllabus_pdf) ? asset('storage/' . $record->syllabus_pdf) : null, shouldOpenInNewTab: true)
+                    ->toggleable(),
                 IconColumn::make('is_published')
                     ->boolean(),
                 TextColumn::make('trending_score')

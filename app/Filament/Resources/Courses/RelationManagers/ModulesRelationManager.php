@@ -5,13 +5,10 @@ namespace App\Filament\Resources\Courses\RelationManagers;
 use App\Filament\Resources\Modules\ModuleResource;
 use App\Models\Module;
 use Filament\Actions\Action;
-use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\DissociateAction;
-use Filament\Actions\DissociateBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -21,6 +18,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Table;
 
 class ModulesRelationManager extends RelationManager
@@ -32,17 +30,20 @@ class ModulesRelationManager extends RelationManager
         return $schema
             ->components([
                 TextInput::make('title')
+                    ->label('Module Title (e.g., GK & IQ 1st Paper)')
                     ->required(),
                 TextInput::make('slug')
                     ->required(),
                 Textarea::make('description')
-                    ->default(null)
+                    ->label('Module Summary')
+                    ->rows(3)
                     ->columnSpanFull(),
                 TextInput::make('order')
                     ->required()
                     ->numeric()
                     ->default(0),
                 Toggle::make('is_published')
+                    ->default(true)
                     ->required(),
             ]);
     }
@@ -51,24 +52,27 @@ class ModulesRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('title')
+            ->defaultSort('order', 'asc')
+            ->reorderable('order')
             ->columns([
+                TextInputColumn::make('order')
+                    ->label('Order #')
+                    ->rules(['required', 'numeric', 'min:0'])
+                    ->sortable()
+                    ->width('90px'),
                 TextColumn::make('title')
-                    ->searchable(),
-                TextColumn::make('slug')
-                    ->searchable(),
-                TextColumn::make('order')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('chapters_count')
-                    ->counts('chapters')
-                    ->label('Chapters'),
+                    ->label('Module Title')
+                    ->searchable()
+                    ->weight('bold'),
+                TextColumn::make('lessons_count')
+                    ->counts('lessons')
+                    ->label('Lessons')
+                    ->badge()
+                    ->color('success'),
                 IconColumn::make('is_published')
+                    ->label('Published')
                     ->boolean(),
                 TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -77,22 +81,20 @@ class ModulesRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                CreateAction::make(),
-                AssociateAction::make(),
+                CreateAction::make()
+                    ->label('Add Module to Course'),
             ])
             ->recordActions([
-                Action::make('manageChapters')
-                    ->label('Chapters')
-                    ->icon(Heroicon::OutlinedBookmarkSquare)
-                    ->color('info')
+                Action::make('manageLessons')
+                    ->label('Manage Lessons')
+                    ->icon(Heroicon::OutlinedDocumentText)
+                    ->color('primary')
                     ->url(fn (Module $record): string => ModuleResource::getUrl('edit', ['record' => $record])),
                 EditAction::make(),
-                DissociateAction::make(),
                 DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DissociateBulkAction::make(),
                     DeleteBulkAction::make(),
                 ]),
             ]);

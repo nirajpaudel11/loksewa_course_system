@@ -7,6 +7,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class CourseForm
@@ -29,6 +30,24 @@ class CourseForm
                     ->disk('public')
                     ->directory('course-thumbnails')
                     ->maxSize(2048)
+                    ->columnSpanFull(),
+                FileUpload::make('syllabus_pdf')
+                    ->label('Official Course Syllabus PDF')
+                    ->acceptedFileTypes(['application/pdf'])
+                    ->disk('public')
+                    ->directory('courses/syllabus')
+                    ->maxSize(102400)
+                    ->openable()
+                    ->downloadable()
+                    ->deletable(true)
+                    ->fetchFileInformation(false)
+                    ->preventFilePathTampering(false)
+                    ->deleteUploadedFileUsing(function ($file) {
+                        if (! empty($file) && is_string($file)) {
+                            @Storage::disk('public')->delete($file);
+                        }
+                    })
+                    ->helperText('Upload the official Loksewa PSC syllabus PDF for this preparation course (Max 100MB). Click the "X" icon to remove and replace with a new PDF.')
                     ->columnSpanFull(),
                 Toggle::make('is_published')
                     ->default(true),
